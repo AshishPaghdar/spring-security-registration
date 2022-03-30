@@ -82,6 +82,7 @@ public class MySimpleUrlAuthenticationSuccessHandler implements AuthenticationSu
     protected String determineTargetUrl(final Authentication authentication) {
         boolean isUser = false;
         boolean isAdmin = false;
+		boolean isManager = false; // Set predefine READ and WRITE privilege for manager role.
         final Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         for (final GrantedAuthority grantedAuthority : authorities) {
             if (grantedAuthority.getAuthority().equals("READ_PRIVILEGE")) {
@@ -90,6 +91,11 @@ public class MySimpleUrlAuthenticationSuccessHandler implements AuthenticationSu
                 isAdmin = true;
                 isUser = false;
                 break;
+            }else if (grantedAuthority.getAuthority().equals("ROLE_MANAGER")) {
+				isAdmin = false;
+				isUser = false;
+				isManager = true;
+				break;
             }
         }
         if (isUser) {
@@ -104,6 +110,8 @@ public class MySimpleUrlAuthenticationSuccessHandler implements AuthenticationSu
             return "/homepage.html?user="+username;
         } else if (isAdmin) {
             return "/console";
+        } else if (isManager) {
+            return "/management";
         } else {
             throw new IllegalStateException();
         }
